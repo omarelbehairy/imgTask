@@ -3,6 +3,7 @@ import cv2
 import numpy as np
 from PyQt5 import QtWidgets, QtGui
 from canny_edge_detector_ui import Ui_Dialog
+from PIL import Image
 
 
 class CannyEdgeDetectorApp(QtWidgets.QDialog, Ui_Dialog):
@@ -22,7 +23,7 @@ class CannyEdgeDetectorApp(QtWidgets.QDialog, Ui_Dialog):
         self.original_image = None
         self.edge_image = None
         self.lower_threshold = 50  # Initial lower threshold
-        self.upper_threshold = 150  # Initial upper threshold
+        self.upper_threshold = 80  # Initial upper threshold
 
     def update_lower_threshold(self, value):
         self.lower_threshold = value
@@ -48,7 +49,8 @@ class CannyEdgeDetectorApp(QtWidgets.QDialog, Ui_Dialog):
         if self.original_image is not None:
             # Perform Canny edge detection with updated thresholds
             detected_edges = self.canny_edge_detection(
-                self.original_image, 5, self.lower_threshold, self.upper_threshold)
+                self.original_image, 9, self.lower_threshold, self.upper_threshold)
+            cv2.imshow("Detected Edges", detected_edges)
             # Display the detected edges
             self.display_image(detected_edges, self.edgeImage)
 
@@ -106,6 +108,9 @@ class CannyEdgeDetectorApp(QtWidgets.QDialog, Ui_Dialog):
         """
         gradient_magnitude = np.sqrt(gradient_x**2 + gradient_y**2)
         gradient_direction = np.arctan2(gradient_y, gradient_x) * 180 / np.pi
+        print("-----------------------------------")
+        print(gradient_direction)
+        print("-----------------")
         return gradient_magnitude, gradient_direction
 
     def non_maximum_suppression(self, gradient_magnitude, gradient_direction):
@@ -141,6 +146,44 @@ class CannyEdgeDetectorApp(QtWidgets.QDialog, Ui_Dialog):
                 if gradient_magnitude[i, j] >= max(neighbors):
                     suppressed[i, j] = gradient_magnitude[i, j]
         return suppressed
+
+    def double_thresholding(self, suppressed, low_threshold, high_threshold):
+        """
+        Applies double thresholding to identify strong, weak, and non-edge pixels.
+
+        Parameters:
+            suppressed (numpy.ndarray): Suppressed image.
+            low_threshold (float): Low threshold value.
+            high_threshold (float): High threshold value.
+
+        Returns:
+            numpy.ndarray: Image containing strong edges.
+            numpy.ndarray: Image containing weak edges.
+        """
+        strong_edges = suppressed > high_threshold
+        weak_edges = (suppressed >= low_threshold) & (
+            suppressed <= high_threshold)
+        return strong_edges, weak_edges
+
+    def edge_tracking(self, edges, weak_edges):
+        """
+        Performs edge tracking by hysteresis to connect weak edges to strong edges.
+
+        Parameters:
+            edges (numpy.ndarray): Image containing strong edges.
+            weak_edges (numpy.ndarray): Image containing weak edges.
+
+        Returns:
+            numpy.ndarray: Final image with connected edges.
+        """
+        rows, cols = edges.shape
+        for i in range(1, rows - 1):
+            for j in range(1, cols - 1):
+                if weak_edges[i, j]:
+                    # Check if any neighboring pixel is a strong edge
+                    if np.any(edges[i - 1:i + 2, j - 1:j + 2]):
+                        edges[i, j] = 255
+        return edges
 
     def hysteresis_thresholding(self, image, low_threshold, high_threshold):
         """
@@ -210,7 +253,8 @@ class CannyEdgeDetectorApp(QtWidgets.QDialog, Ui_Dialog):
         # Step 5: Non-maximum suppression
         suppressed = self.non_maximum_suppression(magnitude, direction)
         # Step 6: Double thresholding
-       # strong_edges, weak_edges = self.double_thresholding(suppressed, low_threshold, high_threshold)
+        strong_edges, weak_edges = self.double_thresholding(
+            suppressed, low_threshold, high_threshold)
         # Step 7: Edge tracking by hysteresis
         edges = self.hysteresis_thresholding(
             suppressed, low_threshold, high_threshold)
@@ -218,17 +262,23 @@ class CannyEdgeDetectorApp(QtWidgets.QDialog, Ui_Dialog):
 
     def display_image(self, image, label_widget):
         # Convert the OpenCV image to QImage
-        if len(image.shape) == 2:  # Grayscale image
+        if label_widget == self.edgeImage:  # Grayscale image
             q_img = QtGui.QImage(
-                image.data, image.shape[1], image.shape[0], image.strides[0], QtGui.QImage.Format_Grayscale8)
+                image.data, image.shape[1], image.shape[0], QtGui.QImage.Format_Grayscale8)
         else:  # Color image
-            q_img = QtGui.QImage(
-                image.data, image.shape[1], image.shape[0], image.strides[0], QtGui.QImage.Format_RGB888).rgbSwapped()
+            if image.shape[2] == 3:
+                q_img = QtGui.QImage(
+                    image.data, image.shape[1], image.shape[0], image.shape[1] * 3, QtGui.QImage.Format_RGB888).rgbSwapped()
+            elif image.shape[2] == 4:
+                q_img = QtGui.QImage(
+                    image.data, image.shape[1], image.shape[0], image.shape[1] * 4, QtGui.QImage.Format_ARGB32)
+            else:
+                raise ValueError(
+                    "Unsupported image format: {} channels".format(image.shape[2]))
 
         # Display the QImage in the QLabel widget
         pixmap = QtGui.QPixmap.fromImage(q_img)
         label_widget.setPixmap(pixmap)
-        pass
 
 
 if __name__ == "__main__":

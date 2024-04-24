@@ -29,7 +29,7 @@ class Ui_Dialog(object):
         self.label.setGeometry(QtCore.QRect(150, 10, 71, 21))
         self.label.setObjectName("label")
         self.label_2 = QtWidgets.QLabel(Dialog)
-        self.label_2.setGeometry(QtCore.QRect(420, 10, 71, 21))
+        self.label_2.setGeometry(QtCore.QRect(390, 10, 71, 21))
         self.label_2.setObjectName("label_2")
         self.splitter = QtWidgets.QSplitter(Dialog)
         self.splitter.setGeometry(QtCore.QRect(90, 50, 481, 301))
@@ -51,6 +51,12 @@ class Ui_Dialog(object):
         self.label_4 = QtWidgets.QLabel(Dialog)
         self.label_4.setGeometry(QtCore.QRect(310, 360, 101, 21))
         self.label_4.setObjectName("label_4")
+        self.LowerSlider.setMinimum(20)  # Adjust the minimum threshold value
+        self.LowerSlider.setMaximum(150)  # Adjust the maximum threshold value
+        self.LowerSlider.setValue(50)  # Adjust the initial threshold value
+        self.UpperSlider.setMinimum(50)  # Adjust the minimum threshold value
+        self.UpperSlider.setMaximum(200)  # Adjust the maximum threshold value
+        self.UpperSlider.setValue(80)  # Adjust the initial threshold value
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -65,4 +71,4 @@ class Ui_Dialog(object):
         self.originalImage.setText(_translate("Dialog", "TextLabel"))
         self.edgeImage.setText(_translate("Dialog", "TextLabel"))
         self.label_3.setText(_translate("Dialog", "Lower Threshold"))
-        self.label_4.setText(_translate("Dialog", "Lower Threshold"))
+        self.label_4.setText(_translate("Dialog", "Upper Threshold"))
