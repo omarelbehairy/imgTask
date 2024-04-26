@@ -69,6 +69,10 @@ from flask import Flask, render_template, request, send_file
 import os
 import cv2
 import numpy as np
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
+
 
 app = Flask(__name__)
 
@@ -82,14 +86,20 @@ def allowed_file(filename):
 
 @app.route('/')
 def index():
+    logging.debug('Received request to upload image')
     return render_template('Htmlfile.html')
 
 @app.route('/upload', methods=['POST'])
 def upload():
+    print('Received request to upload image')
+
     if 'file' not in request.files:
+        print('No file uploaded')
         return 'No file uploaded', 400
 
     file = request.files['file']
+    print(f'Received file: {file.filename}')
+
 
     if file.filename == '':
         return 'No selected file', 400
