@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" type="text/css" href="{{url_for('static',filename='cssFile.css')}}">
+</head>
+<body>
+    <div class="container">
+        <h2>canny filter</h2>
+        <div class="columns">
+            <div class="column" id="leftColumn">
+                <h3>Uploaded Image</h3>
+                <form id="uploadForm" enctype="multipart/form-data">
+                    <label for="fileInput">.</label>
+                    <input type="file" name="file" id="fileInput" accept="image/*">
+                    <button type="button" onclick="uploadImage()">Upload</button>
+                </form>
+                <div id="uploadedPreview" class="preview"></div>
+            </div>
+            <button type="button" >apply corner</button>
+            <div class="column" id="rightColumn">
+                <h3>Filtered Image</h3>
+                <!--the following div is for uploading filtered image-->
+                <div id="filteredPreview" class="preview"></div>
+            </div>
+        </div>
+        <div class="parameters" id="paramForCanny">
+            <div>
+                <label for="lowerThresholdRange">Lower Threshold:</label>
+                <input type="range" min="1" max="100" value="50" class="slider" onchange="" id="lowerThresholdRange">
+                <br>
+                <label for="upperThresholdRange">Upper Threshold:</label>
+                <input type="range" min="1" max="100" value="80" class="slider" onchange="" id="upperThresholdRange">
+            </div>
+            <div>
+                <label for="sigmaValue">sigma val</label>
+                <input type="text" id="sigmaValue">
+                <br>
+                <label for="kernelSize">kernel size</label>
+                <input type="text" id="kernelSize">
+            </div>
+        </div>
+        <div class="parameters" id="paramForhoughAndHarieth">
+            <!--need to make ui for parameters of hough detector-->
+        </div>
+    </div>
+    <script src="jsFile.js"></script>
+</body>
+</html>

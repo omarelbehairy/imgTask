@@ -1,0 +1,50 @@
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 20px;
+}
+
+.columns {
+    display: flex;
+    gap:6px;
+    justify-content: space-between;
+}
+
+.column {
+    width: 48%; /* Adjust the width as needed */
+}
+
+.preview {
+    margin-top: 20px;
+}
+
+.preview img {
+    max-width: 100%;
+}
+
+#leftColumn {
+    border-style: solid;
+    border-width: 3px;
+    border-color: black;
+    border-radius: 5px;
+
+}
+
+#rightColumn {
+    border-style: solid;
+    border-width: 3px;
+    border-color: black;
+    border-radius: 5px;
+
+}
+
+.parameters{
+    display: flex;
+    justify-content: space-between;
+    margin-top: 100px;
+}
+
+body {
+    background-color: #e1fbff;
+}
